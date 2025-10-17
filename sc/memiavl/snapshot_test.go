@@ -149,11 +149,11 @@ func TestDBSnapshotRestore(t *testing.T) {
 		cs := []*proto.NamedChangeSet{
 			{
 				Name:      "test",
-				Changeset: &changes,
+				Changeset: changes,
 			},
 			{
 				Name:      "test2",
-				Changeset: &changes,
+				Changeset: changes,
 			},
 		}
 		require.NoError(t, db.ApplyChangeSets(cs))

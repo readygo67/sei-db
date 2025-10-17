@@ -9,8 +9,9 @@ require (
 	github.com/cockroachdb/pebble v1.1.5
 	github.com/confio/ics23/go v0.9.0
 	github.com/cosmos/cosmos-db v1.1.3
+	github.com/cosmos/gogoproto v1.4.3
 	github.com/cosmos/iavl v1.2.6
-	github.com/gogo/protobuf v1.3.3
+	github.com/gogo/protobuf v1.3.2
 	github.com/ledgerwatch/erigon-lib v0.0.0-20230210071639-db0e7ed11263
 	github.com/linxGnu/grocksdb v1.8.12
 	github.com/spf13/cobra v1.6.1
@@ -22,6 +23,7 @@ require (
 	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/metric v1.38.0
 	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb
+	google.golang.org/protobuf v1.36.8
 )
 
 require (
@@ -33,7 +35,6 @@ require (
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
-	github.com/cosmos/gogoproto v1.4.3 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emicklei/dot v1.4.2 // indirect
@@ -71,8 +72,7 @@ require (
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
-	google.golang.org/protobuf v1.36.8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+replace github.com/cosmos/iavl => ../iavl
