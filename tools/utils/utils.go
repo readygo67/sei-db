@@ -13,8 +13,9 @@ import (
 	"sync"
 	"time"
 
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/iavl"
-	dbm "github.com/tendermint/tm-db"
+	iavldb "github.com/cosmos/iavl/db"
 )
 
 const (
@@ -42,7 +43,7 @@ func OpenDB(dir string) (dbm.DB, error) {
 		return nil, fmt.Errorf("cannot cut paths on %s", dir)
 	}
 	name := dir[cut+1:]
-	db, err := dbm.NewGoLevelDB(name, dir[:cut])
+	db, err := dbm.NewGoLevelDB(name, dir[:cut], nil)
 	if err != nil {
 		return nil, err
 	}
@@ -57,11 +58,11 @@ func ReadTree(db dbm.DB, version int, prefix []byte) (*iavl.MutableTree, error) 
 		db = dbm.NewPrefixDB(db, prefix)
 	}
 
-	tree, err := iavl.NewMutableTree(db, DefaultCacheSize, true)
-	if err != nil {
-		return nil, err
-	}
-	_, err = tree.LoadVersion(int64(version))
+	_db := iavldb.NewWrapper(db)
+
+	tree := iavl.NewMutableTree(_db, DefaultCacheSize, true, nil, nil)
+
+	_, err := tree.LoadVersion(int64(version))
 	return tree, err
 }
 

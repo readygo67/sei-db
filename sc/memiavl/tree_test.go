@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"testing"
 
+	db "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/iavl"
 	"github.com/stretchr/testify/require"
-	db "github.com/tendermint/tm-db"
 )
 
 var (
@@ -60,10 +60,8 @@ func init() {
 
 	// generate ref hashes with ref impl
 	d := db.NewMemDB()
-	refTree, err := iavl.NewMutableTree(d, 0, true)
-	if err != nil {
-		panic(err)
-	}
+	refTree := iavl.NewMutableTree(d, 0, true, nil, nil)
+
 	for _, changes := range ChangeSets {
 		if err := applyChangeSetRef(refTree, changes); err != nil {
 			panic(err)

@@ -8,10 +8,10 @@ import (
 	"sync"
 
 	ics23 "github.com/confio/ics23/go"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/iavl"
 	"github.com/sei-protocol/sei-db/common/utils"
 	"github.com/sei-protocol/sei-db/sc/types"
-	dbm "github.com/tendermint/tm-db"
 )
 
 var _ types.Tree = (*Tree)(nil)

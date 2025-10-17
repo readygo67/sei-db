@@ -4,7 +4,7 @@ import (
 	"io"
 
 	ics23 "github.com/confio/ics23/go"
-	dbm "github.com/tendermint/tm-db"
+	dbm "github.com/cosmos/cosmos-db"
 )
 
 type Tree interface {
