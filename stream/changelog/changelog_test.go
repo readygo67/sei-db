@@ -113,7 +113,7 @@ func writeTestData(changelog *Stream) {
 		cs := []*proto.NamedChangeSet{
 			{
 				Name:      "test",
-				Changeset: &changes,
+				Changeset: changes,
 			},
 		}
 		entry := &proto.ChangelogEntry{}
@@ -138,7 +138,7 @@ func TestAsyncWrite(t *testing.T) {
 		cs := []*proto.NamedChangeSet{
 			{
 				Name:      "test",
-				Changeset: &changes,
+				Changeset: changes,
 			},
 		}
 		entry := &proto.ChangelogEntry{}

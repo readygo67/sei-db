@@ -60,7 +60,7 @@ func ReadTree(db dbm.DB, version int, prefix []byte) (*iavl.MutableTree, error) 
 
 	_db := iavldb.NewWrapper(db)
 
-	tree := iavl.NewMutableTree(_db, DefaultCacheSize, true, nil, nil)
+	tree := iavl.NewMutableTree(_db, DefaultCacheSize, true, nil)
 
 	_, err := tree.LoadVersion(int64(version))
 	return tree, err

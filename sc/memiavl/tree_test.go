@@ -63,7 +63,7 @@ func init() {
 	// generate ref hashes with ref impl
 	d := db.NewMemDB()
 	_d := iavldb.NewWrapper(d)
-	refTree := iavl.NewMutableTree(_d, 0, true, nil, nil)
+	refTree := iavl.NewMutableTree(_d, 0, true, iavl.NewNopLogger())
 
 	for _, changes := range ChangeSets {
 		if err := applyChangeSetRef(refTree, changes); err != nil {
@@ -226,10 +226,9 @@ func TestChangeSetMarshal(t *testing.T) {
 	for _, changes := range ChangeSets {
 		bz, err := proto.Marshal(&changes)
 		require.NoError(t, err)
-
 		var cs iavl.ChangeSet
 		require.NoError(t, proto.Unmarshal(bz, &cs))
-		require.Equal(t, changes, cs)
+		require.Equal(t, true, proto.Equal(&changes, &cs))
 	}
 }
 
