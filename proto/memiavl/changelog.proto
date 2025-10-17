@@ -1,6 +1,8 @@
 syntax = "proto3";
 package memiavl;
 
+option go_package = "github.com/sei-protocol/sei-db/proto";
+
 import "gogoproto/gogo.proto";
 import "iavl/changeset.proto";
 import "memiavl/commit_info.proto";

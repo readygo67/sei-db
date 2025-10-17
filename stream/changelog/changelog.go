@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	gogoproto "github.com/gogo/protobuf/proto"
 	errorutils "github.com/sei-protocol/sei-db/common/errors"
 	"github.com/sei-protocol/sei-db/common/logger"
 	"github.com/sei-protocol/sei-db/proto"
@@ -83,7 +84,7 @@ func (stream *Stream) Write(offset uint64, entry proto.ChangelogEntry) error {
 		stream.writeChannel <- &Message{Index: offset, Data: &entry}
 	} else {
 		// synchronous write
-		bz, err := entry.Marshal()
+		bz, err := gogoproto.Marshal(&entry)
 		if err != nil {
 			return err
 		}
@@ -122,7 +123,7 @@ func (stream *Stream) startWriteGoroutine() {
 			}
 
 			for _, entry := range entries {
-				bz, err := entry.Data.Marshal()
+				bz, err := gogoproto.Marshal(entry.Data)
 				if err != nil {
 					stream.errSignal <- err
 					return
@@ -178,7 +179,7 @@ func (stream *Stream) ReadAt(index uint64) (*proto.ChangelogEntry, error) {
 	if err != nil {
 		return entry, fmt.Errorf("read log failed, %w", err)
 	}
-	if err := entry.Unmarshal(bz); err != nil {
+	if err := gogoproto.Unmarshal(bz, entry); err != nil {
 		return entry, fmt.Errorf("unmarshal rlog failed, %w", err)
 	}
 	return entry, nil
@@ -192,7 +193,7 @@ func (stream *Stream) Replay(start uint64, end uint64, processFn func(index uint
 		if err != nil {
 			return fmt.Errorf("read log failed, %w", err)
 		}
-		if err := entry.Unmarshal(bz); err != nil {
+		if err := gogoproto.Unmarshal(bz, &entry); err != nil {
 			return fmt.Errorf("unmarshal rlog failed, %w", err)
 		}
 		err = processFn(i, entry)

@@ -59,7 +59,7 @@ func writeToDBConcurrently(db types.StateStore, allKVs []utils.KeyValuePair, con
 						Value: kv.Value,
 					})
 				}
-				ncs.Changeset = *cs
+				ncs.Changeset = cs
 				startTime := time.Now()
 				err := db.ApplyChangeset(version, ncs)
 				latency := time.Since(startTime)

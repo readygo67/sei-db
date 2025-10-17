@@ -30,7 +30,7 @@ func TestRewriteSnapshot(t *testing.T) {
 		cs := []*proto.NamedChangeSet{
 			{
 				Name:      "test",
-				Changeset: changes,
+				Changeset: &changes,
 			},
 		}
 
@@ -112,7 +112,7 @@ func TestRewriteSnapshotBackground(t *testing.T) {
 		cs := []*proto.NamedChangeSet{
 			{
 				Name:      "test",
-				Changeset: changes,
+				Changeset: &changes,
 			},
 		}
 		require.NoError(t, db.ApplyChangeSets(cs))
@@ -141,7 +141,7 @@ func TestRewriteSnapshotBackground(t *testing.T) {
 func RequireCommitWithNoError(t *testing.T, db *DB, key, val string) int64 {
 	pairs := []*iavl.KVPair{{Key: []byte(key), Value: []byte(val)}}
 	cs := []*proto.NamedChangeSet{
-		{Name: "test", Changeset: iavl.ChangeSet{Pairs: pairs}},
+		{Name: "test", Changeset: &iavl.ChangeSet{Pairs: pairs}},
 	}
 	require.NoError(t, db.ApplyChangeSets(cs))
 	v, err := db.Commit()
@@ -205,7 +205,7 @@ func TestRlog(t *testing.T) {
 		cs := []*proto.NamedChangeSet{
 			{
 				Name:      "test",
-				Changeset: changes,
+				Changeset: &changes,
 			},
 		}
 		require.NoError(t, db.ApplyChangeSets(cs))
@@ -242,7 +242,7 @@ func mockNameChangeSet(name, key, value string) []*proto.NamedChangeSet {
 	return []*proto.NamedChangeSet{
 		{
 			Name: name,
-			Changeset: iavl.ChangeSet{
+			Changeset: &iavl.ChangeSet{
 				Pairs: mockKVPairs(key, value),
 			},
 		},
@@ -346,7 +346,7 @@ func TestLoadVersion(t *testing.T) {
 		cs := []*proto.NamedChangeSet{
 			{
 				Name:      "test",
-				Changeset: changes,
+				Changeset: &changes,
 			},
 		}
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
@@ -384,7 +384,7 @@ func TestZeroCopy(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.NoError(t, db.ApplyChangeSets([]*proto.NamedChangeSet{
-		{Name: "test", Changeset: ChangeSets[0]},
+		{Name: "test", Changeset: &ChangeSets[0]},
 	}))
 	_, err = db.Commit()
 	require.NoError(t, err)
@@ -395,7 +395,7 @@ func TestZeroCopy(t *testing.T) {
 
 	// the test tree's root hash will reference the zero-copy value
 	require.NoError(t, db.ApplyChangeSets([]*proto.NamedChangeSet{
-		{Name: "test2", Changeset: ChangeSets[0]},
+		{Name: "test2", Changeset: &ChangeSets[0]},
 	}))
 	_, err = db.Commit()
 	require.NoError(t, err)
@@ -454,7 +454,7 @@ func TestEmptyValue(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NoError(t, db.ApplyChangeSets([]*proto.NamedChangeSet{
-		{Name: "test", Changeset: iavl.ChangeSet{
+		{Name: "test", Changeset: &iavl.ChangeSet{
 			Pairs: []*iavl.KVPair{
 				{Key: []byte("hello1"), Value: []byte("")},
 				{Key: []byte("hello2"), Value: []byte("")},
@@ -466,7 +466,7 @@ func TestEmptyValue(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NoError(t, db.ApplyChangeSets([]*proto.NamedChangeSet{
-		{Name: "test", Changeset: iavl.ChangeSet{
+		{Name: "test", Changeset: &iavl.ChangeSet{
 			Pairs: []*iavl.KVPair{{Key: []byte("hello1"), Delete: true}},
 		}},
 	}))
@@ -541,7 +541,7 @@ func TestFastCommit(t *testing.T) {
 	// the rlog writing will slow down a little bit,
 	// segment size is 20m, each change set is 1m, so we need a bit more than 20 commits to reproduce.
 	for i := 0; i < 30; i++ {
-		require.NoError(t, db.ApplyChangeSets([]*proto.NamedChangeSet{{Name: "test", Changeset: cs}}))
+		require.NoError(t, db.ApplyChangeSets([]*proto.NamedChangeSet{{Name: "test", Changeset: &cs}}))
 		_, err := db.Commit()
 		require.NoError(t, err)
 	}
@@ -560,12 +560,12 @@ func TestRepeatedApplyChangeSet(t *testing.T) {
 	require.NoError(t, err)
 
 	err = db.ApplyChangeSets([]*proto.NamedChangeSet{
-		{Name: "test1", Changeset: iavl.ChangeSet{
+		{Name: "test1", Changeset: &iavl.ChangeSet{
 			Pairs: []*iavl.KVPair{
 				{Key: []byte("hello1"), Value: []byte("world1")},
 			},
 		}},
-		{Name: "test2", Changeset: iavl.ChangeSet{
+		{Name: "test2", Changeset: &iavl.ChangeSet{
 			Pairs: []*iavl.KVPair{
 				{Key: []byte("hello2"), Value: []byte("world2")},
 			},

@@ -7,7 +7,9 @@ import (
 	"testing"
 
 	db "github.com/cosmos/cosmos-db"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/cosmos/iavl"
+	iavldb "github.com/cosmos/iavl/db"
 	"github.com/stretchr/testify/require"
 )
 
@@ -60,7 +62,8 @@ func init() {
 
 	// generate ref hashes with ref impl
 	d := db.NewMemDB()
-	refTree := iavl.NewMutableTree(d, 0, true, nil, nil)
+	_d := iavldb.NewWrapper(d)
+	refTree := iavl.NewMutableTree(_d, 0, true, nil, nil)
 
 	for _, changes := range ChangeSets {
 		if err := applyChangeSetRef(refTree, changes); err != nil {
@@ -221,11 +224,11 @@ func TestTreeCopy(t *testing.T) {
 
 func TestChangeSetMarshal(t *testing.T) {
 	for _, changes := range ChangeSets {
-		bz, err := changes.Marshal()
+		bz, err := proto.Marshal(&changes)
 		require.NoError(t, err)
 
 		var cs iavl.ChangeSet
-		require.NoError(t, cs.Unmarshal(bz))
+		require.NoError(t, proto.Unmarshal(bz, &cs))
 		require.Equal(t, changes, cs)
 	}
 }

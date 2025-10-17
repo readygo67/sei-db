@@ -340,7 +340,7 @@ func (db *DB) ApplyChangeSet(name string, changeSet iavl.ChangeSet) error {
 
 	db.pendingLogEntry.Changesets = append(db.pendingLogEntry.Changesets, &proto.NamedChangeSet{
 		Name:      name,
-		Changeset: changeSet,
+		Changeset: &changeSet,
 	})
 	sort.SliceStable(db.pendingLogEntry.Changesets, func(i, j int) bool {
 		return db.pendingLogEntry.Changesets[i].Name < db.pendingLogEntry.Changesets[j].Name

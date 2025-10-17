@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	gogoproto "github.com/gogo/protobuf/proto"
 	"github.com/sei-protocol/sei-db/proto"
 	"github.com/sei-protocol/sei-db/sc/types"
 )
@@ -236,7 +237,7 @@ func updateMetadataFile(dir string, height int64) (returnErr error) {
 	if err != nil {
 		return err
 	}
-	storeInfos := make([]proto.StoreInfo, 0, len(entries))
+	storeInfos := make([]*proto.StoreInfo, 0, len(entries))
 	for _, e := range entries {
 		if !e.IsDir() {
 			continue
@@ -251,9 +252,9 @@ func updateMetadataFile(dir string, height int64) (returnErr error) {
 				returnErr = err
 			}
 		}()
-		storeInfos = append(storeInfos, proto.StoreInfo{
+		storeInfos = append(storeInfos, &proto.StoreInfo{
 			Name: name,
-			CommitId: proto.CommitID{
+			CommitId: &proto.CommitID{
 				Version: height,
 				Hash:    snapshot.RootHash(),
 			},
@@ -267,7 +268,7 @@ func updateMetadataFile(dir string, height int64) (returnErr error) {
 		// initial version should correspond to the first rlog entry
 		InitialVersion: height + 1,
 	}
-	bz, err := metadata.Marshal()
+	bz, err := gogoproto.Marshal(&metadata)
 	if err != nil {
 		return err
 	}

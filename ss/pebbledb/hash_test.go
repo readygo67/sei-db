@@ -322,7 +322,7 @@ func TestAsyncComputeMissingRanges(t *testing.T) {
 	// Test the async method by applying a changeset which triggers range computation
 	cs := &proto.NamedChangeSet{
 		Name: "bank",
-		Changeset: iavl.ChangeSet{
+		Changeset: &iavl.ChangeSet{
 			Pairs: []*iavl.KVPair{
 				{
 					Key:   []byte("asyncKey"),

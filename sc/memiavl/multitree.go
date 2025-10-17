@@ -12,6 +12,7 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/cosmos/iavl"
+	gogoproto "github.com/gogo/protobuf/proto"
 	"github.com/sei-protocol/sei-db/common/errors"
 	"github.com/sei-protocol/sei-db/common/metrics"
 	"github.com/sei-protocol/sei-db/common/utils"
@@ -269,7 +270,7 @@ func (t *MultiTree) ApplyChangeSet(name string, changeSet iavl.ChangeSet) error 
 // ApplyChangeSets applies change sets for multiple trees.
 func (t *MultiTree) ApplyChangeSets(changeSets []*proto.NamedChangeSet) error {
 	for _, cs := range changeSets {
-		if err := t.ApplyChangeSet(cs.Name, cs.Changeset); err != nil {
+		if err := t.ApplyChangeSet(cs.Name, *cs.Changeset); err != nil {
 			return err
 		}
 	}
@@ -295,18 +296,18 @@ func (t *MultiTree) SaveVersion(updateCommitInfo bool) (int64, error) {
 		t.UpdateCommitInfo()
 	} else {
 		// clear the dirty informaton
-		t.lastCommitInfo.StoreInfos = []proto.StoreInfo{}
+		t.lastCommitInfo.StoreInfos = []*proto.StoreInfo{}
 	}
 
 	return t.lastCommitInfo.Version, nil
 }
 
 func (t *MultiTree) buildCommitInfo(version int64) *proto.CommitInfo {
-	var infos = make([]proto.StoreInfo, 0, len(t.trees))
+	var infos = make([]*proto.StoreInfo, 0, len(t.trees))
 	for _, entry := range t.trees {
-		infos = append(infos, proto.StoreInfo{
+		infos = append(infos, &proto.StoreInfo{
 			Name: entry.Name,
-			CommitId: proto.CommitID{
+			CommitId: &proto.CommitID{
 				Version: entry.Version(),
 				Hash:    entry.RootHash(),
 			},
@@ -359,7 +360,7 @@ func (t *MultiTree) Catchup(stream types.Stream[proto.ChangelogEntry], endVersio
 		updatedTrees := make(map[string]bool)
 		for _, cs := range entry.Changesets {
 			treeName := cs.Name
-			t.TreeByName(treeName).ApplyChangeSetAsync(cs.Changeset)
+			t.TreeByName(treeName).ApplyChangeSetAsync(*cs.Changeset)
 			updatedTrees[treeName] = true
 		}
 		for _, tree := range t.trees {
@@ -368,7 +369,7 @@ func (t *MultiTree) Catchup(stream types.Stream[proto.ChangelogEntry], endVersio
 			}
 		}
 		t.lastCommitInfo.Version = utils.NextVersion(t.lastCommitInfo.Version, t.initialVersion)
-		t.lastCommitInfo.StoreInfos = []proto.StoreInfo{}
+		t.lastCommitInfo.StoreInfos = []*proto.StoreInfo{}
 		replayCount++
 		if replayCount%1000 == 0 {
 			fmt.Printf("Replayed %d changelog entries\n", replayCount)
@@ -411,7 +412,7 @@ func (t *MultiTree) WriteSnapshot(ctx context.Context, dir string, wp *pond.Work
 		CommitInfo:     &t.lastCommitInfo,
 		InitialVersion: int64(t.initialVersion),
 	}
-	bz, err := metadata.Marshal()
+	bz, err := gogoproto.Marshal(&metadata)
 	if err != nil {
 		return err
 	}
@@ -463,7 +464,7 @@ func readMetadata(dir string) (*proto.MultiTreeMetadata, error) {
 		return nil, err
 	}
 	var metadata proto.MultiTreeMetadata
-	if err := metadata.Unmarshal(bz); err != nil {
+	if err := gogoproto.Unmarshal(bz, &metadata); err != nil {
 		return nil, err
 	}
 	if metadata.CommitInfo.Version > math.MaxUint32 {

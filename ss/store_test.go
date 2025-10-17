@@ -35,7 +35,7 @@ func TestNewStateStore(t *testing.T) {
 		cs := iavl.ChangeSet{Pairs: pairs}
 		ncs := &proto.NamedChangeSet{
 			Name:      "storeA",
-			Changeset: cs,
+			Changeset: &cs,
 		}
 		changesets = append(changesets, ncs)
 		err := stateStore.ApplyChangesetAsync(int64(i), changesets)

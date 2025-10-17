@@ -51,7 +51,7 @@ func (s *StorageBenchSuite) BenchmarkGet(b *testing.B) {
 
 	ncs := &proto.NamedChangeSet{
 		Name:      storeKey1,
-		Changeset: *cs,
+		Changeset: cs,
 	}
 
 	require.NoError(b, db.ApplyChangeset(1, ncs))
@@ -98,7 +98,7 @@ func (s *StorageBenchSuite) BenchmarkApplyChangeset(b *testing.B) {
 
 			ncs := &proto.NamedChangeSet{
 				Name:      storeKey1,
-				Changeset: *cs,
+				Changeset: cs,
 			}
 			b.StartTimer()
 			require.NoError(b, db.ApplyChangeset(int64(b.N+1), ncs))
@@ -137,7 +137,7 @@ func (s *StorageBenchSuite) BenchmarkIterate(b *testing.B) {
 	}
 	ncs := &proto.NamedChangeSet{
 		Name:      storeKey1,
-		Changeset: *cs,
+		Changeset: cs,
 	}
 
 	require.NoError(b, db.ApplyChangeset(1, ncs))

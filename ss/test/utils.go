@@ -27,7 +27,7 @@ func FillData(db types.StateStore, numKeys int, versions int) error {
 
 		ncs := &proto.NamedChangeSet{
 			Name:      storeKey1,
-			Changeset: *cs,
+			Changeset: cs,
 		}
 
 		err := db.ApplyChangeset(i, ncs)
@@ -54,7 +54,7 @@ func DBApplyChangeset(db types.StateStore, version int64, storeKey string, key, 
 
 	ncs := &proto.NamedChangeSet{
 		Name:      storeKey,
-		Changeset: *cs,
+		Changeset: cs,
 	}
 
 	return db.ApplyChangeset(version, ncs)
@@ -70,7 +70,7 @@ func DBApplyDeleteChangeset(db types.StateStore, version int64, storeKey string,
 
 	ncs := &proto.NamedChangeSet{
 		Name:      storeKey,
-		Changeset: *cs,
+		Changeset: cs,
 	}
 
 	return db.ApplyChangeset(version, ncs)
