@@ -23,7 +23,6 @@ require (
 	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/metric v1.38.0
 	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb
-	google.golang.org/protobuf v1.36.8
 )
 
 require (
@@ -72,7 +71,11 @@ require (
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
+	google.golang.org/protobuf v1.36.8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/cosmos/iavl => ../iavl
+replace (
+	github.com/cosmos/iavl => ../iavl
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+)
