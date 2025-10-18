@@ -7,10 +7,10 @@ require (
 	github.com/armon/go-metrics v0.4.1
 	github.com/aws/aws-sdk-go v1.44.327
 	github.com/cockroachdb/pebble v1.1.5
-	github.com/confio/ics23/go v0.9.0
 	github.com/cosmos/cosmos-db v1.1.3
-	github.com/cosmos/gogoproto v1.4.3
+	github.com/cosmos/gogoproto v1.7.0
 	github.com/cosmos/iavl v1.2.6
+	github.com/cosmos/ics23/go v0.11.0
 	github.com/gogo/protobuf v1.3.2
 	github.com/ledgerwatch/erigon-lib v0.0.0-20230210071639-db0e7ed11263
 	github.com/linxGnu/grocksdb v1.8.12
@@ -34,7 +34,6 @@ require (
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
-	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emicklei/dot v1.4.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -43,6 +42,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.3 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect

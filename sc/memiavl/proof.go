@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"math"
 
-	ics23 "github.com/confio/ics23/go"
 	"github.com/cosmos/iavl"
+	ics23 "github.com/cosmos/ics23/go"
 )
 
 /*

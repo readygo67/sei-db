@@ -7,9 +7,9 @@ import (
 	"math"
 	"sync"
 
-	ics23 "github.com/confio/ics23/go"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/iavl"
+	ics23 "github.com/cosmos/ics23/go"
 	"github.com/sei-protocol/sei-db/common/utils"
 	"github.com/sei-protocol/sei-db/sc/types"
 )

@@ -3,8 +3,8 @@ package types
 import (
 	"io"
 
-	ics23 "github.com/confio/ics23/go"
 	dbm "github.com/cosmos/cosmos-db"
+	ics23 "github.com/cosmos/ics23/go"
 )
 
 type Tree interface {
