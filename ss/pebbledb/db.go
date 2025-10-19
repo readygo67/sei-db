@@ -8,6 +8,7 @@ import (
 	"math"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/armon/go-metrics"
@@ -60,7 +61,7 @@ type Database struct {
 	// Earliest version for db after pruning
 	earliestVersion int64
 	// Latest version for db
-	latestVersion int64
+	latestVersion atomic.Int64
 
 	// Map of module to when each was last updated
 	// Used in pruning to skip over stores that have not been updated recently
@@ -141,9 +142,10 @@ func New(dataDir string, config config.StateStoreConfig) (*Database, error) {
 		asyncWriteWG:    sync.WaitGroup{},
 		config:          config,
 		earliestVersion: earliestVersion,
-		latestVersion:   latestVersion,
+		latestVersion:   atomic.Int64{},
 		pendingChanges:  make(chan VersionedChangesets, config.AsyncWriteBuffer),
 	}
+	database.latestVersion.Store(latestVersion)
 
 	// Initialize the lastRangeHashed cache
 	lastHashed, err := retrieveLastRangeHashed(db)
@@ -190,7 +192,7 @@ func (db *Database) SetLatestVersion(version int64) error {
 	if version < 0 {
 		return fmt.Errorf("version must be non-negative")
 	}
-	db.latestVersion = version
+	db.latestVersion.Store(version)
 	var ts [VersionSize]byte
 	binary.LittleEndian.PutUint64(ts[:], uint64(version))
 	err := db.storage.Set([]byte(latestVersionKey), ts[:], defaultWriteOpts)
@@ -198,7 +200,7 @@ func (db *Database) SetLatestVersion(version int64) error {
 }
 
 func (db *Database) GetLatestVersion() int64 {
-	return db.latestVersion
+	return db.latestVersion.Load()
 }
 
 // Retrieve latestVersion from db, if not found, return 0.
@@ -376,7 +378,8 @@ func (db *Database) Get(storeKey string, targetVersion int64, key []byte) ([]byt
 	return nil, nil
 }
 
-func (db *Database) ApplyChangeset(version int64, cs *proto.NamedChangeSet) error {
+// ApplyChangesetSync apply all changesets for a single version in blocking way
+func (db *Database) ApplyChangesetSync(version int64, changeset []*proto.NamedChangeSet) error {
 	// Check if version is 0 and change it to 1
 	// We do this specifically since keys written as part of genesis state come in as version 0
 	// But pebbledb treats version 0 as special, so apply the changeset at version 1 instead
@@ -390,29 +393,35 @@ func (db *Database) ApplyChangeset(version int64, cs *proto.NamedChangeSet) erro
 		return err
 	}
 
-	for _, kvPair := range cs.Changeset.Pairs {
-		if kvPair.Value == nil {
-			if err := b.Delete(cs.Name, kvPair.Key); err != nil {
+	for _, cs := range changeset {
+		for _, kvPair := range cs.Changeset.Pairs {
+			if kvPair.Value == nil {
+				if err := b.Delete(cs.Name, kvPair.Key); err != nil {
+					return err
+				}
+			} else if err := b.Set(cs.Name, kvPair.Key, kvPair.Value); err != nil {
 				return err
 			}
-		} else if err := b.Set(cs.Name, kvPair.Key, kvPair.Value); err != nil {
-			return err
 		}
+		// Mark the store as updated
+		db.storeKeyDirty.Store(cs.Name, version)
 	}
-
-	// Mark the store as updated
-	db.storeKeyDirty.Store(cs.Name, version)
 
 	if err := b.Write(); err != nil {
 		return err
 	}
-	// Update latest version on write success
-	db.latestVersion = version
+	// Update latest version after all writes succeed
+	db.latestVersion.Store(version)
 	return nil
 }
 
 func (db *Database) ApplyChangesetAsync(version int64, changesets []*proto.NamedChangeSet) error {
-	// Write to WAL first
+	// Add to pending changes first
+	db.pendingChanges <- VersionedChangesets{
+		Version:    version,
+		Changesets: changesets,
+	}
+	// Write to WAL
 	if db.streamHandler != nil {
 		entry := proto.ChangelogEntry{
 			Version: version,
@@ -423,11 +432,6 @@ func (db *Database) ApplyChangesetAsync(version int64, changesets []*proto.Named
 		if err != nil {
 			return err
 		}
-	}
-	// Then write to pending changes
-	db.pendingChanges <- VersionedChangesets{
-		Version:    version,
-		Changesets: changesets,
 	}
 
 	if db.config.HashRange > 0 {
@@ -546,11 +550,8 @@ func (db *Database) writeAsyncInBackground() {
 	for nextChange := range db.pendingChanges {
 		if db.streamHandler != nil {
 			version := nextChange.Version
-			for _, cs := range nextChange.Changesets {
-				err := db.ApplyChangeset(version, cs)
-				if err != nil {
-					panic(err)
-				}
+			if err := db.ApplyChangesetSync(version, nextChange.Changesets); err != nil {
+				panic(err)
 			}
 		}
 	}
